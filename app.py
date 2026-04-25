@@ -79,7 +79,7 @@ else:
 
     # --- PÁGINA 1: DASHBOARD ---
     if opcion == "📊 Dashboard de Mercado":
-        c_logo, c_title = st.columns([1, 4])
+        c_logo, c_title = st.columns(2)
         with c_logo:
              if logo_b64: st.markdown(f'<img src="data:image/png;base64,{logo_b64}" width="80">', unsafe_allow_html=True)
         with c_title:
@@ -101,7 +101,6 @@ else:
 
         with col_tabla:
             st.subheader("📊 Acciones BVC")
-            # Corrección: Volvemos a use_container_width=True que es el valor seguro
             st.dataframe(df[['Ticker', 'Nombre de Acción', 'Último Precio', 'Cierre Anterior']], use_container_width=True, hide_index=True)
             
             st.write("---")
@@ -113,8 +112,6 @@ else:
             st.subheader("🧮 Calculadora de Inversión")
             monto = st.number_input("Presupuesto de inversión (VES)", min_value=1.0, value=5000.0)
             accion_calc = st.selectbox("Acción a simular compra:", df['Ticker'], key="calc_tab")
-            
-            # Obtener el precio de forma segura
             precio_accion = df[df['Ticker'] == accion_calc]['Último Precio'].values[0]
             cantidad = int(monto // precio_accion)
             comision = (monto * 0.01)
@@ -133,5 +130,30 @@ else:
     # --- PÁGINA 2: ACADEMIA ---
     elif opcion == "🎓 FintWay Academy":
         st.markdown('<p class="main-header">FintWay Academy 📚</p>', unsafe_allow_html=True)
-        st.write("### 📖 Glosario del Inversionista")
-        with st.expander("🔸 IBC"): st.write("Índice Bursátil Caracas.")
+        st.write("### 📖 Glosario del Inversionista (BVC)")
+        
+        # CATEGORÍA 1: MERCADO
+        with st.expander("🏛️ Términos Fundamentales del Mercado"):
+            st.write("**Bolsa de Valores de Caracas (BVC):** Institución privada donde se realizan las negociaciones de títulos valores (acciones, bonos, papeles comerciales) en Venezuela, operando principalmente a través del Sistema Integrado Bursátil Electrónico (SIBE).")
+            st.write("**Casa de Bolsa:** Intermediario financiero autorizado (corredor de bolsa) necesario para comprar o vender acciones. Son los únicos autorizados para operar en la BVC.")
+            st.write("**Caja Venezolana de Valores (CVV):** Depósito central de los títulos valores. Es el lugar donde se registran, custodian y traspasan las acciones que compras, garantizando la seguridad de tu propiedad.")
+            st.write("**Acciones (Renta Variable):** Partes alícuotas del capital de una empresa. Al comprar acciones, te haces socio (accionista) participando en sus ganancias o pérdidas.")
+            st.write("**IBC (Índice Bursátil Caracas):** Principal indicador de la BVC. Mide el comportamiento promedio del precio de las acciones más negociadas.")
+            st.write("**Mercado Primario:** Cuando una empresa emite acciones o bonos por primera vez para financiarse.")
+            st.write("**Mercado Secundario:** Donde se compran y venden acciones ya emitidas entre inversionistas.")
+
+        # CATEGORÍA 2: VALORACIÓN
+        with st.expander("💰 Términos de Valoración y Retorno"):
+            st.write("**Dividendos:** Distribución de parte de las utilidades de una empresa entre sus accionistas, pagados en dinero o en más acciones.")
+            st.write("**Ganancia de Capital:** La diferencia positiva entre el precio de venta de una acción y su precio de compra original.")
+            st.write("**Papeles Comerciales (Renta Fija):** Instrumentos de deuda a corto plazo emitidos por empresas para obtener liquidez con una tasa de interés conocida.")
+            st.write("**Rendimiento:** La ganancia o pérdida porcentual obtenida en una inversión en un periodo de tiempo.")
+
+        # CATEGORÍA 3: GESTIÓN DE RIESGO
+        with st.expander("🛡️ Conceptos para la Gestión de Riesgo"):
+            st.write("**Bursatilidad:** Medida de qué tan fácil es comprar o vender una acción sin alterar significativamente su precio.")
+            st.write("**Diversificación:** Estrategia de no poner todo el dinero en una sola empresa o sector. 'No poner todos los huevos en la misma canasta'.")
+            st.write("**Volatilidad:** La frecuencia e intensidad de los cambios de precio de una acción.")
+            st.write("**Inflación/Cobertura:** Uso de activos bursátiles para proteger el poder adquisitivo del dinero frente al aumento de precios.")
+
+        st.info("💡 Consejo: Dominar estos términos te permitirá tomar decisiones más acertadas en la Terminal.")
