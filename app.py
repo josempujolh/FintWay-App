@@ -3,93 +3,136 @@ import pandas as pd
 import os
 import base64
 import plotly.express as px
+import random
 
-# CONFIGURACIÓN DE PÁGINA
+# 1. CONFIGURACIÓN DE PÁGINA
 st.set_page_config(page_title="FintWay Terminal", layout="wide")
 
-# LÓGICA DE LOGO
+# 2. LÓGICA DE RUTA PARA EL LOGO
 current_dir = os.path.dirname(os.path.abspath(__file__))
 logo_path = os.path.join(current_dir, "logo.png")
+
 def get_base64_logo(file_path):
     if os.path.exists(file_path):
-        with open(file_path, "rb") as f: return base64.b64encode(f.read()).decode()
+        with open(file_path, "rb") as f:
+            return base64.b64encode(f.read()).decode()
     return None
+
 logo_b64 = get_base64_logo(logo_path)
 
-# ESTILO CSS
+# 3. ESTILO CSS FUTURISTA (ACTUALIZADO PARA TEXTOS BLANCOS)
 st.markdown("""
     <style>
     .stApp { background-color: #001f3f; color: #ffffff; }
+    
+    /* Forzar que todas las etiquetas (Usuario, Contraseña, etc.) sean blancas */
+    label { 
+        color: white !important; 
+        font-weight: bold !important; 
+        font-size: 1.1rem !important; 
+    }
+    
     .stButton>button { background-color: #D4AF37; color: black; border-radius: 5px; font-weight: bold; width: 100%; }
     .main-header { color: #D4AF37; font-size: 35px; font-weight: bold; margin: 0px; }
-    .card { background-color: #002b56; padding: 12px; border-radius: 10px; border-left: 4px solid #D4AF37; margin-bottom: 5px; }
+    .card { background-color: #002b56; padding: 12px; border-radius: 10px; border-left: 5px solid #D4AF37; margin-bottom: 5px; }
+    .calc-card { background-color: #1a3a5a; padding: 20px; border-radius: 10px; border: 1px solid #D4AF37; }
     .gain { color: #00FF41; font-weight: bold; font-size: 18px; }
+    .academy-tip { background-color: #1a3a5a; padding: 20px; border-radius: 15px; border: 1px solid #D4AF37; font-style: italic; margin-bottom: 20px; }
+    
+    /* Estilo para los inputs para que se vean modernos */
+    .stTextInput>div>div>input, .stNumberInput>div>div>input {
+        background-color: #002b56;
+        color: white;
+        border: 1px solid #D4AF37;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# --- DATOS CORREGIDOS SPRINT 2 ---
+# --- 4. DATOS DE MERCADO ---
 data_market = {
-    'Ticker': ['TPG', 'BNC', 'MVZ.A', 'MVZ.B', 'BVL', 'RST', 'FVI.B', 'ABC.A', 'IVC', 'CANTV', 'BPV', 'G_DOM', 'CRM.A'],
-    'Nombre': ['Telefónica', 'Bco Nac de Crédito', 'Mercantil A', 'Mercantil B', 'Bco de Venezuela', 'Ron Santa Teresa', 'Fondo de Valores', 'Aceros Boada', 'Inm. Valcro', 'CANTV', 'Bco Provincial', 'Domínguez & Cía', 'Corimon'],
-    'Ultimo': [8.50, 2.15, 110.50, 108.20, 15.30, 9.45, 12.30, 45.00, 5.40, 3.20, 22.10, 7.80, 4.10],
-    'Cierre_Ant': [7.76, 2.14, 110.00, 108.00, 14.80, 9.10, 12.10, 45.00, 5.35, 3.20, 21.50, 7.90, 4.05],
-    'VNeg': [12500, 45000, 8900, 7200, 31000, 15600, 12000, 500, 2100, 18000, 9500, 4300, 6700], # Datos corregidos
-    'Compra': [8.45, 2.14, 110.10, 108.10, 15.20, 9.40, 12.25, 44.50, 5.30, 3.15, 22.00, 7.70, 4.00],
-    'Venta': [8.55, 2.16, 110.90, 108.90, 15.40, 9.50, 12.35, 45.50, 5.45, 3.25, 22.20, 7.90, 4.20]
+    'Ticker': ['ABC.A', 'BNC', 'BPV', 'BYCC', 'BVL', 'CCP.B', 'DOM', 'ENY', 'MVZ.B', 'RST', 'RST.B', 'SVS', 'TPG'],
+    'Nombre de Acción': ['Aceros Boada', 'Bco Nac. de Crédito', 'Bco Provincial', 'Bolsa de Caracas', 'Bco de Venezuela', 'Corp. Capriles B', 'Domínguez & Cía', 'Envases Venezolanos', 'Mercantil B', 'Ron Santa Teresa', 'Ron Santa Teresa B', 'Sivensa', 'Telefónica'],
+    'Último Precio': [1610.00, 1500.00, 126.40, 670.00, 1729.00, 503.00, 690.00, 710.00, 6800.00, 545.46, 400.00, 1160.00, 19.00],
+    'Cierre Anterior': [1610.00, 1455.00, 127.01, 679.00, 1729.00, 503.00, 696.00, 705.00, 7092.92, 545.46, 399.71, 1150.00, 20.00]
 }
 df = pd.DataFrame(data_market)
-df['Var%'] = ((df['Ultimo'] - df['Cierre_Ant']) / df['Cierre_Ant'] * 100).round(2)
 
-lista_casas = sorted([
-    "Mercantil Merinvest", "BNCI", "Ratio Sociedad de Corretaje", "Rendivalores", "Fivenca",
-    "Provivienda", "BNC Casa de Bolsa", "Banctrust", "Interbursa", "Kastillo", "Maximum",
-    "Valores Vencred", "Activalores", "Albus", "Andalucía", "Arbi", "Caracas", "Citibank", 
-    "Deustche Bank", "Eurobursa", "Finagentes", "GNB", "Global Service", "Invercapital", 
-    "Multinvest", "Oriental", "Puma", "Statera"
-])
+resenas = {
+    "BNC": "Banco Universal con sólida presencia en el mercado nacional. Líder en depósitos del sector privado.",
+    "RST": "Ron Santa Teresa: Empresa bicentenaria, referente del ron premium venezolano en el mundo.",
+    "TPG": "Telefónica Venezolana: Innovación constante en servicios de conectividad y entretenimiento.",
+    "BVL": "Banco de Venezuela: Principal red bancaria del país, clave en el sistema de pagos nacional.",
+    "ABC.A": "Aceros Boada: Tradición y calidad en la industria metalúrgica del país."
+}
 
-# --- DASHBOARD ---
+# --- 5. LÓGICA DE LOGIN ---
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    if logo_b64: st.markdown(f'<img src="data:image/png;base64,{logo_b64}" width="200">', unsafe_allow_html=True)
-    u = st.text_input("Usuario"); p = st.text_input("Contraseña", type="password")
-    if st.button("ACCEDER"):
-        if u == "admin" and p == "fintway2026": st.session_state.logged_in = True; st.rerun()
+    st.columns(3)[1].markdown(f'<img src="data:image/png;base64,{logo_b64}" width="200">' if logo_b64 else "", unsafe_allow_html=True)
+    st.markdown('<p style="text-align:center;" class="main-header">Acceso a Terminal FintWay</p>', unsafe_allow_html=True)
+    u = st.text_input("Usuario")
+    p = st.text_input("Contraseña", type="password")
+    if st.button("ACCEDER A LA RED"):
+        if u == "admin" and p == "fintway2026": 
+            st.session_state.logged_in = True
+            st.rerun()
 else:
-    c1, c2 = st.columns([1, 4])
-    with c1: 
-        if logo_b64: st.markdown(f'<img src="data:image/png;base64,{logo_b64}" width="90">', unsafe_allow_html=True)
-    with c2: st.markdown('<p class="main-header">FintWay Terminal 🛰️</p>', unsafe_allow_html=True)
-    
-    st.divider()
-
-    # 1. TOP GAINERS EXPANDIDO (4 tarjetas)
-    st.subheader("🚀 Top Gainers (BVC)")
-    top_4 = df.sort_values(by='Var%', ascending=False).head(4)
-    cols_gain = st.columns(4)
-    for i, (idx, row) in enumerate(top_4.iterrows()):
-        with cols_gain[i]:
-            st.markdown(f'<div class="card"><h4 style="margin:0;">{row["Ticker"]}</h4><p class="gain">+{row["Var%"]}%</p><p style="margin:0; font-size:14px;">{row["Ultimo"]} VES</p></div>', unsafe_allow_html=True)
-
-    # 2. IBC E INFO
-    col_chart, col_info = st.columns([2, 1])
-    with col_chart:
-        df_ibc = pd.DataFrame({'Fecha': ['06/04', '07/04', '08/04', '09/04', '10/04'], 'Puntos': [5120, 5340, 5280, 5410, 5246.47]})
-        fig = px.line(df_ibc, x='Fecha', y='Puntos', title="Desempeño IBC")
-        fig.update_traces(line_color='#00FF41'); fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="white", height=200)
-        st.plotly_chart(fig, use_container_width=True)
-    
-    with col_info:
-        st.info("💡 Tip: Revisa el volumen (VNeg) para asegurar liquidez en tus operaciones.")
-
-    # 3. TABLA
-    st.subheader("📊 Mercado por Volumen de Negociación")
-    st.dataframe(df.sort_values(by='VNeg', ascending=False), use_container_width=True, hide_index=True)
-
-    # 4. SIDEBAR
-    st.sidebar.title("Operaciones")
+    # --- SIDEBAR ---
+    st.sidebar.title("Menú Principal")
     if logo_b64: st.sidebar.markdown(f'<img src="data:image/png;base64,{logo_b64}" width="150">', unsafe_allow_html=True)
-    casa_sel = st.sidebar.selectbox("Casa de Bolsa:", lista_casas)
-    st.sidebar.button("GENERAR ORDEN DE COMPRA")
-    if st.sidebar.button("Cerrar Sesión"): st.session_state.logged_in = False; st.rerun()
+    opcion = st.sidebar.radio("Navegación:", ["📊 Dashboard de Mercado", "🎓 FintWay Academy"])
+    st.sidebar.divider()
+    if st.sidebar.button("Cerrar Sesión"): 
+        st.session_state.logged_in = False
+        st.rerun()
+
+    # --- PÁGINA 1: DASHBOARD ---
+    if opcion == "📊 Dashboard de Mercado":
+        c_logo, c_title = st.columns([1, 4])
+        with c_logo:
+             if logo_b64: st.markdown(f'<img src="data:image/png;base64,{logo_b64}" width="80">', unsafe_allow_html=True)
+        with c_title:
+            st.markdown('<p class="main-header">Terminal de Inversión 🛰️</p>', unsafe_allow_html=True)
+        
+        st.divider()
+
+        col_tabla, col_calc = st.columns(2)
+
+        with col_tabla:
+            st.subheader("📊 Acciones BVC")
+            st.dataframe(df[['Ticker', 'Nombre de Acción', 'Último Precio']], use_container_width=True, hide_index=True)
+            
+            st.write("---")
+            ticker_sel = st.selectbox("🔍 Ver Ficha Técnica de:", df['Ticker'])
+            resena_text = resenas.get(ticker_sel, "Información en proceso de carga por la Casa de Bolsa.")
+            st.markdown(f'<div class="card"><b>{ticker_sel}</b>: {resena_text}</div>', unsafe_allow_html=True)
+
+        with col_calc:
+            st.subheader("🧮 Calculadora de Inversión")
+            monto = st.number_input("Presupuesto de inversión (VES)", min_value=1.0, value=5000.0)
+            accion_calc = st.selectbox("Acción a simular compra:", df['Ticker'])
+            
+            precio_accion = df[df['Ticker'] == accion_calc]['Último Precio'].values[0]
+            cantidad = int(monto // precio_accion)
+            comision = (monto * 0.01)
+            
+            st.markdown(f"""
+                <div class="calc-card">
+                    <p>Con un capital de <b>{monto:,.2f} VES</b> obtendrías:</p>
+                    <h2 style="color:#00FF41; margin:0;">{cantidad} Acciones</h2>
+                    <p style="margin-top:10px;">Precio Ref: {precio_accion:,.2f} VES</p>
+                    <p>Comisión Est. (1%): {comision:,.2f} VES</p>
+                    <hr>
+                    <p style="font-size:12px; color:#D4AF37;">Cifras calculadas según el último precio registrado.</p>
+                </div>
+            """, unsafe_allow_html=True)
+
+    # --- PÁGINA 2: ACADEMIA ---
+    elif opcion == "🎓 FintWay Academy":
+        st.markdown('<p class="main-header">FintWay Academy 📚</p>', unsafe_allow_html=True)
+        st.markdown(f'<div class="academy-tip">💡 Tip: {random.choice(["El IBC es el promedio del mercado.", "Diversificar reduce el riesgo."])}</div>', unsafe_allow_html=True)
+        
+        st.write("### 📖 Glosario del Inversionista")
+        with st.expander("🔸 IBC"): st.write("Índice Bursátil Caracas.")
+        with st.expander("🔸 Renta Variable"): st.write("Instrumentos donde el retorno no está garantizado (Acciones).")
