@@ -30,7 +30,7 @@ st.markdown("""
     .card { background-color: #002b56; padding: 12px; border-radius: 10px; border-left: 5px solid #D4AF37; margin-bottom: 5px; }
     .calc-card { background-color: #1a3a5a; padding: 20px; border-radius: 10px; border: 1px solid #D4AF37; }
     .gain { color: #00FF41; font-weight: bold; font-size: 18px; }
-    .academy-tip { background-color: #1a3a5a; padding: 20px; border-radius: 15px; border: 1px solid #D4AF37; font-style: italic; margin-bottom: 20px; }
+    .term-title { color: #D4AF37; font-weight: bold; }
     .stTextInput>div>div>input, .stNumberInput>div>div>input { background-color: #002b56; color: white; border: 1px solid #D4AF37; }
     </style>
     """, unsafe_allow_html=True)
@@ -44,14 +44,6 @@ data_market = {
 }
 df = pd.DataFrame(data_market)
 df['Var%'] = ((df['Último Precio'] - df['Cierre Anterior']) / df['Cierre Anterior'] * 100).round(2)
-
-resenas = {
-    "BNC": "Banco Universal enfocado en banca comercial. Líder en depósitos del sector privado.",
-    "RST": "Ron Santa Teresa: Empresa bicentenaria, referente del ron premium venezolano.",
-    "TPG": "Telefónica Venezolana (Movistar). Líder en servicios de telecomunicaciones.",
-    "BVL": "Banco de Venezuela: La institución financiera más grande del país.",
-    "ABC.A": "Aceros Boada: Tradición y calidad en la industria metalúrgica."
-}
 
 # --- 5. LÓGICA DE LOGIN ---
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
@@ -84,76 +76,52 @@ else:
              if logo_b64: st.markdown(f'<img src="data:image/png;base64,{logo_b64}" width="80">', unsafe_allow_html=True)
         with c_title:
             st.markdown('<p class="main-header">FintWay Terminal 🛰️</p>', unsafe_allow_html=True)
-        
         st.divider()
 
-        # TOP GAINERS
         st.subheader("🚀 Top Gainers (BVC)")
         top_4 = df.sort_values(by='Var%', ascending=False).head(4)
         cols_gain = st.columns(4)
         for i, (idx, row) in enumerate(top_4.iterrows()):
             with cols_gain[i]:
-                st.markdown(f'<div class="card"><h4 style="margin:0;">{row["Ticker"]}</h4><p class="gain">+{row["Var%"]}%</p><p style="margin:0; font-size:14px;">{row["Último Precio"]} VES</p></div>', unsafe_allow_html=True)
-
-        st.write("---")
+                st.markdown(f'<div class="card"><h4 style="margin:0;">{row["Ticker"]}</h4><p class="gain">+{row["Var%"]}%</p></div>', unsafe_allow_html=True)
 
         col_tabla, col_calc = st.columns(2)
-
         with col_tabla:
             st.subheader("📊 Acciones BVC")
-            st.dataframe(df[['Ticker', 'Nombre de Acción', 'Último Precio', 'Cierre Anterior']], use_container_width=True, hide_index=True)
-            
-            st.write("---")
-            ticker_sel = st.selectbox("🔍 Ver Ficha Técnica de:", df['Ticker'])
-            resena_text = resenas.get(ticker_sel, "Información técnica en proceso de actualización.")
-            st.markdown(f'<div class="card"><b>{ticker_sel}</b>: {resena_text}</div>', unsafe_allow_html=True)
-
+            st.dataframe(df[['Ticker', 'Nombre de Acción', 'Último Precio']], use_container_width=True, hide_index=True)
         with col_calc:
-            st.subheader("🧮 Calculadora de Inversión")
-            monto = st.number_input("Presupuesto de inversión (VES)", min_value=1.0, value=5000.0)
-            accion_calc = st.selectbox("Acción a simular compra:", df['Ticker'], key="calc_tab")
-            precio_accion = df[df['Ticker'] == accion_calc]['Último Precio'].values[0]
-            cantidad = int(monto // precio_accion)
-            comision = (monto * 0.01)
-            
-            st.markdown(f"""
-                <div class="calc-card">
-                    <p>Con un capital de <b>{monto:,.2f} VES</b> obtendrías:</p>
-                    <h2 style="color:#00FF41; margin:0;">{cantidad} Acciones</h2>
-                    <p style="margin-top:10px;">Precio Ref: {precio_accion:,.2f} VES</p>
-                    <p>Comisión Est. (1%): {comision:,.2f} VES</p>
-                    <hr>
-                    <p style="font-size:12px; color:#D4AF37;">Cifras calculadas según el último precio registrado.</p>
-                </div>
-            """, unsafe_allow_html=True)
+            st.subheader("🧮 Calculadora")
+            monto = st.number_input("Inversión (VES)", min_value=1.0, value=5000.0)
+            accion_calc = st.selectbox("Acción:", df['Ticker'], key="calc_tab")
+            precio = df[df['Ticker'] == accion_calc]['Último Precio'].values[0]
+            st.markdown(f'<div class="calc-card">Podrías comprar: <h2 style="color:#00FF41;">{int(monto//precio)} Acciones</h2></div>', unsafe_allow_html=True)
 
-    # --- PÁGINA 2: ACADEMIA ---
+    # --- PÁGINA 2: ACADEMIA (DORADO Y BLANCO) ---
     elif opcion == "🎓 FintWay Academy":
         st.markdown('<p class="main-header">FintWay Academy 📚</p>', unsafe_allow_html=True)
         st.write("### 📖 Glosario del Inversionista (BVC)")
         
-        # CATEGORÍA 1: MERCADO
+        # Función para formatear términos
+        def term(titulo, explicacion):
+            return st.markdown(f'<p><span class="term-title">{titulo}:</span> {explicacion}</p>', unsafe_allow_html=True)
+
         with st.expander("🏛️ Términos Fundamentales del Mercado"):
-            st.write("**Bolsa de Valores de Caracas (BVC):** Institución privada donde se realizan las negociaciones de títulos valores (acciones, bonos, papeles comerciales) en Venezuela, operando principalmente a través del Sistema Integrado Bursátil Electrónico (SIBE).")
-            st.write("**Casa de Bolsa:** Intermediario financiero autorizado (corredor de bolsa) necesario para comprar o vender acciones. Son los únicos autorizados para operar en la BVC.")
-            st.write("**Caja Venezolana de Valores (CVV):** Depósito central de los títulos valores. Es el lugar donde se registran, custodian y traspasan las acciones que compras, garantizando la seguridad de tu propiedad.")
-            st.write("**Acciones (Renta Variable):** Partes alícuotas del capital de una empresa. Al comprar acciones, te haces socio (accionista) participando en sus ganancias o pérdidas.")
-            st.write("**IBC (Índice Bursátil Caracas):** Principal indicador de la BVC. Mide el comportamiento promedio del precio de las acciones más negociadas.")
-            st.write("**Mercado Primario:** Cuando una empresa emite acciones o bonos por primera vez para financiarse.")
-            st.write("**Mercado Secundario:** Donde se compran y venden acciones ya emitidas entre inversionistas.")
+            term("Bolsa de Valores de Caracas (BVC)", "Institución privada donde se realizan las negociaciones de títulos valores en Venezuela.")
+            term("Casa de Bolsa", "Intermediario financiero autorizado necesario para comprar o vender acciones.")
+            term("Caja Venezolana de Valores (CVV)", "Lugar donde se registran, custodian y traspasan las acciones que compras.")
+            term("Acciones (Renta Variable)", "Partes alícuotas del capital de una empresa. Te haces socio de la misma.")
+            term("IBC (Índice Bursátil Caracas)", "Principal indicador que mide el comportamiento promedio de las acciones.")
+            term("Mercado Primario", "Cuando una empresa emite acciones por primera vez.")
+            term("Mercado Secundario", "Donde se compran y venden acciones ya emitidas entre inversionistas.")
 
-        # CATEGORÍA 2: VALORACIÓN
         with st.expander("💰 Términos de Valoración y Retorno"):
-            st.write("**Dividendos:** Distribución de parte de las utilidades de una empresa entre sus accionistas, pagados en dinero o en más acciones.")
-            st.write("**Ganancia de Capital:** La diferencia positiva entre el precio de venta de una acción y su precio de compra original.")
-            st.write("**Papeles Comerciales (Renta Fija):** Instrumentos de deuda a corto plazo emitidos por empresas para obtener liquidez con una tasa de interés conocida.")
-            st.write("**Rendimiento:** La ganancia o pérdida porcentual obtenida en una inversión en un periodo de tiempo.")
+            term("Dividendos", "Distribución de parte de las utilidades de una empresa entre sus accionistas.")
+            term("Ganancia de Capital", "Diferencia positiva entre el precio de venta y el de compra original.")
+            term("Papeles Comerciales (Renta Fija)", "Instrumentos de deuda a corto plazo con una tasa de interés conocida.")
+            term("Rendimiento", "La ganancia o pérdida porcentual obtenida en una inversión.")
 
-        # CATEGORÍA 3: GESTIÓN DE RIESGO
-        with st.expander("🛡️ Conceptos para la Gestión de Riesgo"):
-            st.write("**Bursatilidad:** Medida de qué tan fácil es comprar o vender una acción sin alterar significativamente su precio.")
-            st.write("**Diversificación:** Estrategia de no poner todo el dinero en una sola empresa o sector. 'No poner todos los huevos en la misma canasta'.")
-            st.write("**Volatilidad:** La frecuencia e intensidad de los cambios de precio de una acción.")
-            st.write("**Inflación/Cobertura:** Uso de activos bursátiles para proteger el poder adquisitivo del dinero frente al aumento de precios.")
-
-        st.info("💡 Consejo: Dominar estos términos te permitirá tomar decisiones más acertadas en la Terminal.")
+        with st.expander("🛡️ Gestión de Riesgo"):
+            term("Bursatilidad", "Medida de qué tan fácil es comprar o vender una acción sin alterar su precio.")
+            term("Diversificación", "Estrategia de no poner todo el dinero en una sola empresa.")
+            term("Volatilidad", "La frecuencia e intensidad de los cambios de precio.")
+            term("Inflación/Cobertura", "Uso de activos para proteger el poder adquisitivo del dinero.")
