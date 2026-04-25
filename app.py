@@ -20,31 +20,18 @@ def get_base64_logo(file_path):
 
 logo_b64 = get_base64_logo(logo_path)
 
-# 3. ESTILO CSS FUTURISTA (ACTUALIZADO PARA TEXTOS BLANCOS)
+# 3. ESTILO CSS FUTURISTA
 st.markdown("""
     <style>
     .stApp { background-color: #001f3f; color: #ffffff; }
-    
-    /* Forzar que todas las etiquetas (Usuario, Contraseña, etc.) sean blancas */
-    label { 
-        color: white !important; 
-        font-weight: bold !important; 
-        font-size: 1.1rem !important; 
-    }
-    
-    .stButton>button { background-color: #D4AF37; color: black; border-radius: 5px; font-weight: bold; width: 100%; }
+    label { color: white !important; font-weight: bold !important; font-size: 1.1rem !important; }
+    .stButton>button { background-color: #D4AF37; color: black; border-radius: 5px; border: none; font-weight: bold; width: 100%; }
     .main-header { color: #D4AF37; font-size: 35px; font-weight: bold; margin: 0px; }
     .card { background-color: #002b56; padding: 12px; border-radius: 10px; border-left: 5px solid #D4AF37; margin-bottom: 5px; }
     .calc-card { background-color: #1a3a5a; padding: 20px; border-radius: 10px; border: 1px solid #D4AF37; }
     .gain { color: #00FF41; font-weight: bold; font-size: 18px; }
     .academy-tip { background-color: #1a3a5a; padding: 20px; border-radius: 15px; border: 1px solid #D4AF37; font-style: italic; margin-bottom: 20px; }
-    
-    /* Estilo para los inputs para que se vean modernos */
-    .stTextInput>div>div>input, .stNumberInput>div>div>input {
-        background-color: #002b56;
-        color: white;
-        border: 1px solid #D4AF37;
-    }
+    .stTextInput>div>div>input, .stNumberInput>div>div>input { background-color: #002b56; color: white; border: 1px solid #D4AF37; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -56,20 +43,23 @@ data_market = {
     'Cierre Anterior': [1610.00, 1455.00, 127.01, 679.00, 1729.00, 503.00, 696.00, 705.00, 7092.92, 545.46, 399.71, 1150.00, 20.00]
 }
 df = pd.DataFrame(data_market)
+df['Var%'] = ((df['Último Precio'] - df['Cierre Anterior']) / df['Cierre Anterior'] * 100).round(2)
 
 resenas = {
-    "BNC": "Banco Universal con sólida presencia en el mercado nacional. Líder en depósitos del sector privado.",
-    "RST": "Ron Santa Teresa: Empresa bicentenaria, referente del ron premium venezolano en el mundo.",
-    "TPG": "Telefónica Venezolana: Innovación constante en servicios de conectividad y entretenimiento.",
-    "BVL": "Banco de Venezuela: Principal red bancaria del país, clave en el sistema de pagos nacional.",
-    "ABC.A": "Aceros Boada: Tradición y calidad en la industria metalúrgica del país."
+    "BNC": "Banco Universal enfocado en banca comercial. Líder en depósitos del sector privado.",
+    "RST": "Ron Santa Teresa: Empresa bicentenaria, referente del ron premium venezolano.",
+    "TPG": "Telefónica Venezolana (Movistar). Líder en servicios de telecomunicaciones.",
+    "BVL": "Banco de Venezuela: La institución financiera más grande del país.",
+    "ABC.A": "Aceros Boada: Tradición y calidad en la industria metalúrgica."
 }
 
 # --- 5. LÓGICA DE LOGIN ---
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    st.columns(3)[1].markdown(f'<img src="data:image/png;base64,{logo_b64}" width="200">' if logo_b64 else "", unsafe_allow_html=True)
+    c_log1, c_log2, c_log3 = st.columns(3)
+    with c_log2:
+        if logo_b64: st.markdown(f'<img src="data:image/png;base64,{logo_b64}" width="200">', unsafe_allow_html=True)
     st.markdown('<p style="text-align:center;" class="main-header">Acceso a Terminal FintWay</p>', unsafe_allow_html=True)
     u = st.text_input("Usuario")
     p = st.text_input("Contraseña", type="password")
@@ -93,26 +83,38 @@ else:
         with c_logo:
              if logo_b64: st.markdown(f'<img src="data:image/png;base64,{logo_b64}" width="80">', unsafe_allow_html=True)
         with c_title:
-            st.markdown('<p class="main-header">Terminal de Inversión 🛰️</p>', unsafe_allow_html=True)
+            st.markdown('<p class="main-header">FintWay Terminal 🛰️</p>', unsafe_allow_html=True)
         
         st.divider()
+
+        # TOP GAINERS
+        st.subheader("🚀 Top Gainers (BVC)")
+        top_4 = df.sort_values(by='Var%', ascending=False).head(4)
+        cols_gain = st.columns(4)
+        for i, (idx, row) in enumerate(top_4.iterrows()):
+            with cols_gain[i]:
+                st.markdown(f'<div class="card"><h4 style="margin:0;">{row["Ticker"]}</h4><p class="gain">+{row["Var%"]}%</p><p style="margin:0; font-size:14px;">{row["Último Precio"]} VES</p></div>', unsafe_allow_html=True)
+
+        st.write("---")
 
         col_tabla, col_calc = st.columns(2)
 
         with col_tabla:
             st.subheader("📊 Acciones BVC")
-            st.dataframe(df[['Ticker', 'Nombre de Acción', 'Último Precio']], use_container_width=True, hide_index=True)
+            # Corrección: Volvemos a use_container_width=True que es el valor seguro
+            st.dataframe(df[['Ticker', 'Nombre de Acción', 'Último Precio', 'Cierre Anterior']], use_container_width=True, hide_index=True)
             
             st.write("---")
             ticker_sel = st.selectbox("🔍 Ver Ficha Técnica de:", df['Ticker'])
-            resena_text = resenas.get(ticker_sel, "Información en proceso de carga por la Casa de Bolsa.")
+            resena_text = resenas.get(ticker_sel, "Información técnica en proceso de actualización.")
             st.markdown(f'<div class="card"><b>{ticker_sel}</b>: {resena_text}</div>', unsafe_allow_html=True)
 
         with col_calc:
             st.subheader("🧮 Calculadora de Inversión")
             monto = st.number_input("Presupuesto de inversión (VES)", min_value=1.0, value=5000.0)
-            accion_calc = st.selectbox("Acción a simular compra:", df['Ticker'])
+            accion_calc = st.selectbox("Acción a simular compra:", df['Ticker'], key="calc_tab")
             
+            # Obtener el precio de forma segura
             precio_accion = df[df['Ticker'] == accion_calc]['Último Precio'].values[0]
             cantidad = int(monto // precio_accion)
             comision = (monto * 0.01)
@@ -131,8 +133,5 @@ else:
     # --- PÁGINA 2: ACADEMIA ---
     elif opcion == "🎓 FintWay Academy":
         st.markdown('<p class="main-header">FintWay Academy 📚</p>', unsafe_allow_html=True)
-        st.markdown(f'<div class="academy-tip">💡 Tip: {random.choice(["El IBC es el promedio del mercado.", "Diversificar reduce el riesgo."])}</div>', unsafe_allow_html=True)
-        
         st.write("### 📖 Glosario del Inversionista")
         with st.expander("🔸 IBC"): st.write("Índice Bursátil Caracas.")
-        with st.expander("🔸 Renta Variable"): st.write("Instrumentos donde el retorno no está garantizado (Acciones).")
