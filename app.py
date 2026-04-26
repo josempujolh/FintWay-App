@@ -20,7 +20,7 @@ def get_base64_logo(file_path):
 
 logo_b64 = get_base64_logo(logo_path)
 
-# 3. ESTILO CSS FUTURISTA (Dorado, Blanco, Azul)
+# 3. ESTILO CSS FUTURISTA
 st.markdown("""
     <style>
     .stApp { background-color: #001f3f; color: #ffffff; }
@@ -31,7 +31,6 @@ st.markdown("""
     .calc-card { background-color: #1a3a5a; padding: 20px; border-radius: 10px; border: 1px solid #D4AF37; }
     .gain { color: #00FF41; font-weight: bold; font-size: 18px; }
     .term-title { color: #D4AF37; font-weight: bold; }
-    .academy-tip { background-color: #1a3a5a; padding: 15px; border-radius: 10px; border: 1px solid #D4AF37; font-style: italic; margin-bottom: 20px; }
     .web-button {
         display: inline-block; padding: 10px 20px; background-color: #D4AF37; color: black !important;
         text-decoration: none !important; border-radius: 5px; font-weight: bold; margin-top: 10px;
@@ -40,36 +39,114 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 4. DATOS DE MERCADO Y RESEÑAS ---
+# --- 4. DATOS DE MERCADO ---
 data_market = {
-    'Ticker': ['ABC.A', 'BNC', 'BPV', 'BYCC', 'BVL', 'CCP.B', 'DOM', 'ENY', 'MVZ.B', 'RST', 'RST.B', 'SVS', 'TPG'],
-    'Nombre de Acción': ['Aceros Boada', 'Bco Nac. de Crédito', 'Bco Provincial', 'Bolsa de Caracas', 'Bco de Venezuela', 'Corp. Capriles B', 'Domínguez & Cía', 'Envases Venezolanos', 'Mercantil B', 'Ron Santa Teresa', 'Ron Santa Teresa B', 'Sivensa', 'Telefónica'],
-    'Último Precio': [1610.00, 1500.00, 126.40, 670.00, 1729.00, 503.00, 690.00, 710.00, 6800.00, 545.46, 400.00, 1160.00, 19.00],
-    'Cierre Anterior': [1610.00, 1455.00, 127.01, 679.00, 1729.00, 503.00, 696.00, 705.00, 7092.92, 545.46, 399.71, 1150.00, 20.00]
+    'Ticker': ['ABC.A', 'BNC', 'BPV', 'BYCC', 'BVL', 'CCP.B', 'DOM', 'ENY', 'MVZ.B', 'RST', 'RST.B', 'SVS', 'TPG', 'IBC'],
+    'Nombre de Acción': ['Aceros Boada', 'Bco Nac. de Crédito', 'Bco Provincial', 'Bolsa de Caracas', 'Bco de Venezuela', 'Corp. Capriles B', 'Domínguez & Cía', 'Envases Venezolanos', 'Mercantil B', 'Ron Santa Teresa', 'Ron Santa Teresa B', 'Sivensa', 'Telefónica', 'Índice IBC'],
+    'Último Precio': [1610.00, 1500.00, 126.40, 670.00, 1729.00, 503.00, 690.00, 710.00, 6800.00, 545.46, 400.00, 1160.00, 19.00, 5835.16],
+    'Cierre Anterior': [1610.00, 1455.00, 127.01, 679.00, 1729.00, 503.00, 696.00, 705.00, 7092.92, 545.46, 399.71, 1150.00, 20.00, 5246.47]
 }
 df = pd.DataFrame(data_market)
 df['Var%'] = ((df['Último Precio'] - df['Cierre Anterior']) / df['Cierre Anterior'] * 100).round(2)
 
-resenas = {
-    "BNC": "Banco Universal enfocado en banca comercial. Líder en depósitos del sector privado.",
-    "RST": "Ron Santa Teresa: Empresa bicentenaria, referente del ron premium venezolano.",
-    "TPG": "Telefónica Venezolana (Movistar). Líder en servicios de telecomunicaciones.",
-    "BVL": "Banco de Venezuela: La institución financiera más grande del país.",
-    "ABC.A": "Aceros Boada: Tradición y calidad en la industria metalúrgica."
-}
-
-# --- 5. DATOS DIRECTORIO CASAS DE BOLSA ---
+# --- 5. DATOS DIRECTORIO CASAS DE BOLSA (EXACTAMENTE COMO EL PDF) ---
 directorio_casas = {
-    "Mercantil Merinvest": {"desc": "Líder en el mercado de valores venezolano, ofreciendo servicios de corretaje y asesoría financiera.", "web": "https://mercantilmerinvest.com"},
-    "BNCI Casa de Bolsa": {"desc": "Especialistas en intermediación de títulos valores y gestión de portafolios.", "web": "https://bnci.com.ve"},
-    "Ratio Casa de Bolsa": {"desc": "Enfocados en brindar soluciones de inversión estratégicas en el mercado de capitales.", "web": "https://ratiocasadobolsa.com"},
-    "Rendivalores": {"desc": "Casa de Bolsa destacada por su plataforma tecnológica y análisis de mercado.", "web": "https://rendivalores.com"},
-    "Fivenca": {"desc": "Institución financiera dedicada a la gestión de activos y asesoría bursátil.", "web": "https://fivenca.com"},
-    "BNC Casa de Bolsa": {"desc": "Filial del BNC, enfocada en la democratización del acceso al mercado de valores.", "web": "https://bncenlinea.com"},
-    "Banctrust": {"desc": "Especialistas en banca de inversión y mercados emergentes.", "web": "https://banctrust.com"},
-    "Interbursa": {"desc": "Corretaje de títulos valores con enfoque en atención personalizada.", "web": "https://interbursa.com.ve"},
-    "Valores Vencred": {"desc": "Sólida ética profesional, ofreciendo custodia y negociación de activos.", "web": "https://valoresvencred.com"},
-    "Activalores": {"desc": "Expertos en estructuración de emisiones y corretaje de acciones en la BVC.", "web": "https://activalores.com"}
+    "Solfin Casa de Bolsa, C.A": {
+        "rif": "J-31049062-7",
+        "desc": "Solfin, es una empresa que se basa en la calidad y excelencia, pensando siempre en la búsqueda de la rentabilidad apropiada, de acuerdo al perfil de cada uno de nuestros clientes. Somos una institución financiera de calidad institucional, soportada por inquebrantables valores éticos.",
+        "dir": "Distrito Capital / Torre Oriental de Seguros, piso 1, Av. Venezuela, El Rosal Caracas.",
+        "tel": "+58 212 953 8177",
+        "mail": "info@solfin.com.ve",
+        "web": "https://www.solfin.com.ve/"
+    },
+    "Acciona Casa de Bolsa, C.A.": {
+        "rif": "J-50037354-6",
+        "desc": "Nuestra innovadora propuesta de valor soportada en economías productivas y oportunidades globales digitales, nos posiciona como lideres en servicios bursátiles integrales.",
+        "dir": "Distrito Capital / C.C. San Ignacio. Torre Copernico, La Castellana Caracas 1060.",
+        "tel": "+58 02122617196",
+        "mail": "info@accionavalores.com",
+        "web": "https://accionavalores.com"
+    },
+    "Caja Caracas Casa de Bolsa, C.A.": {
+        "rif": "J-30318305-0",
+        "desc": "Proporcionamos soluciones globales en el área de servicios financieros a inversionistas y empresas en búsqueda de desarrollo estratégico.",
+        "dir": "Distrito Capital / Av. Francisco de Miranda, Edif. Parque Cristal, Torre Este, Piso 2, Los Palos Grandes.",
+        "tel": "+58 2122191818",
+        "mail": "contactenos@cajacaracas.com",
+        "web": "https://cajacaracas.com/"
+    },
+    "Per Capital Sociedad de Corretaje": {
+        "rif": "J-500299516",
+        "desc": "Empresa miembro de la Bolsa de Valores de Caracas, ofrece servicios de corretaje, gestión de inversiones y estructuración financiera con aplicación móvil.",
+        "dir": "Distrito Capital / Av. Tamanaco, Torre Atlantic, Piso 5, El Rosal, Caracas.",
+        "tel": "+58 4242824480",
+        "mail": "info@per-capital.com",
+        "web": "https://per-capital.com/"
+    },
+    "BNCI Casa de Bolsa, C.A.": {
+        "rif": "J-50028351-2",
+        "desc": "Institución que interconecta inversores con oportunidades de financiamiento en renta fija y variable, especialista en papeles comerciales.",
+        "dir": "Miranda / Av. Blandin con San Felipe, Torre BNC La Castellana, Piso 1.",
+        "tel": "+58 2129547830",
+        "mail": "info@bnci-casadebolsa.com",
+        "web": "https://bnci.com.ve"
+    },
+    "Fivenca Casa de Bolsa, C.A.": {
+        "rif": "J-08501464-0",
+        "desc": "Grupo financiero enfocado en desarrollar estrategias personalizadas con amplia experiencia en el mercado venezolano e internacional.",
+        "dir": "Distrito Capital / Av. F. de Miranda, CC Lido, Torre C, Piso 5, El Rosal.",
+        "tel": "+58 212-3075799",
+        "mail": "atencionalcliente@grupofivenca.com",
+        "web": "https://fivenca.com/"
+    },
+    "Mercosur Casa de Bolsa, C.A.": {
+        "rif": "J-08501466-0",
+        "desc": "Institución financiera joven y dinámica con el firme propósito de contribuir activamente en el desarrollo económico.",
+        "dir": "Distrito Capital / Avenida Venezuela con Calle Mohedano, Torre JWM, Piso 6, El Rosal.",
+        "tel": "+58 212 952 4165",
+        "mail": "negocios@mercosur.com.ve",
+        "web": "https://mercosur.com.ve/home/"
+    },
+    "Kaizen Casa de Bolsa, C.A": {
+        "rif": "J-500199163",
+        "desc": "Institución conformada por profesionales con gran trayectoria en el sector financiero y de consultoría.",
+        "dir": "Distrito Capital / Av. Segunda, Edif. Torre Credival, Piso 4, Campo Alegre.",
+        "tel": "+58 212 8148994",
+        "mail": "info@kaizencasadebolsa.com",
+        "web": "https://www.kaizencasadebolsa.com/"
+    },
+    "Mercantil Merinvest Casa de Bolsa": {
+        "rif": "J-00300384-0",
+        "desc": "Especializada en intermediación y gestión de inversiones desde 1987. Forma parte del holding Mercantil Servicios Financieros.",
+        "dir": "Distrito Capital / Edf. Banco Mercantil, Piso 31, Urb. San Bernardino, Caracas.",
+        "tel": "+58 0212 5032066",
+        "mail": "ccdeinversion@mercantilmerinvest.com",
+        "web": "https://www.mercantilmerinvest.com/"
+    },
+    "Rendivalores Casa de Bolsa, C.A.": {
+        "rif": "J-30292237-2",
+        "desc": "Más de 29 años de trayectoria exitosa ofreciendo una gama diversificada de productos y servicios financieros.",
+        "dir": "Miranda / Av. San Felipe con 2da Transversal, Edif. Bancarias, Piso 9, La Castellana.",
+        "tel": "+58 2122679909",
+        "mail": "info@rendivalores.com",
+        "web": "https://rendivalores.com/"
+    },
+    "Invercapital Casa de Bolsa, C.A.": {
+        "rif": "J-31688953-0",
+        "desc": "Ayuda a transformar ahorros en inversión, guiando en las distintas áreas del mercado y acompañando todo el proceso.",
+        "dir": "Distrito Capital / Av. Francisco de Miranda, Torre Parque Cristal, Piso 5, Los Palos Grandes.",
+        "tel": "+58 (212) 740.01.50",
+        "mail": "comunicaciones@invercapital.com",
+        "web": "https://invercapital.com/"
+    },
+    "World Trading Casa de Bolsa, C.A.": {
+        "rif": "J-41253655-9",
+        "desc": "Sociedad debidamente autorizada por la SUNAVAL, constituida para operar bajo las leyes de Venezuela.",
+        "dir": "Edo. Miranda / Calle California Con Mucuchies, Residencias California, Piso 3, Las Mercedes.",
+        "tel": "+02129940178",
+        "mail": "worldtradingadmon@gmail.com",
+        "web": "https://wtcasadebolsa.com/"
+    }
 }
 
 # --- 6. LÓGICA DE LOGIN ---
@@ -86,7 +163,7 @@ if not st.session_state.logged_in:
             st.session_state.logged_in = True
             st.rerun()
 else:
-    # --- SIDEBAR NAVEGACIÓN ---
+    # --- SIDEBAR ---
     st.sidebar.title("Menú Principal")
     if logo_b64: st.sidebar.markdown(f'<img src="data:image/png;base64,{logo_b64}" width="150">', unsafe_allow_html=True)
     opcion = st.sidebar.radio("Navegación:", ["📊 Dashboard de Mercado", "🎓 FintWay Academy", "🏢 Directorio Casas de Bolsa"])
@@ -114,50 +191,51 @@ else:
         with col_tabla:
             st.subheader("📊 Acciones Bolsa de Valores de Caracas")
             st.dataframe(df[['Ticker', 'Nombre de Acción', 'Último Precio', 'Cierre Anterior']], use_container_width=True, hide_index=True)
-            st.write("---")
-            ticker_sel = st.selectbox("🔍 Ver Ficha Técnica de:", df['Ticker'])
-            resena_text = resenas.get(ticker_sel, "Información técnica en proceso de actualización.")
-            st.markdown(f'<div class="card"><b>{ticker_sel}</b>: {resena_text}</div>', unsafe_allow_html=True)
         with col_calc:
             st.subheader("🧮 Calculadora de Inversión")
             monto = st.number_input("Presupuesto (VES)", min_value=1.0, value=5000.0)
             accion_c = st.selectbox("Acción a simular:", df['Ticker'], key="calc")
-            precio = df[df['Ticker'] == accion_c]['Último Precio'].values[0]
+            precio = df[df['Ticker'] == accion_c]['Último Precio'].values
             st.markdown(f'<div class="calc-card">Podrías comprar: <h2 style="color:#00FF41;">{int(monto//precio)} Acciones</h2><p>Comisión Est. (1%): {(monto*0.01):,.2f} VES</p></div>', unsafe_allow_html=True)
 
-    # --- PÁGINA 2: ACADEMIA (RECUPERADA) ---
+    # --- PÁGINA 2: ACADEMIA ---
     elif opcion == "🎓 FintWay Academy":
         st.markdown('<p class="main-header">FintWay Academy 📚</p>', unsafe_allow_html=True)
-        tips = ["El IBC mide las 15 mayores empresas.", "Diversificar reduce el riesgo."]
-        st.markdown(f'<div class="academy-tip">💡 Tip: {random.choice(tips)}</div>', unsafe_allow_html=True)
-        
         st.write("### 📖 Glosario del Inversionista (BVC)")
         def term(t, e): st.markdown(f'<p><span class="term-title">{t}:</span> {e}</p>', unsafe_allow_html=True)
 
         with st.expander("🏛️ Términos Fundamentales del Mercado"):
-            term("Bolsa de Valores de Caracas (BVC)", "Institución donde se realizan las negociaciones de títulos valores.")
-            term("Casa de Bolsa", "Intermediario financiero autorizado necesario para operar en la BVC.")
-            term("Caja Venezolana de Valores (CVV)", "Depósito central donde se custodian y registran tus acciones.")
-            term("Acciones (Renta Variable)", "Partes del capital de una empresa. Te haces socio de la misma.")
-            term("IBC (Índice Bursátil Caracas)", "Principal indicador que mide el comportamiento promedio del mercado.")
+            term("Bolsa de Valores de Caracas (BVC)", "Institución privada donde se realizan las negociaciones.")
+            term("Casa de Bolsa", "Intermediario financiero autorizado necesario para operar.")
+            term("Caja Venezolana de Valores (CVV)", "Depósito central donde se custodian tus acciones.")
+            term("Acciones (Renta Variable)", "Partes del capital de una empresa.")
+            term("IBC (Índice Bursátil Caracas)", "Principal indicador del mercado.")
             term("Mercado Primario", "Emisión de acciones por primera vez.")
-            term("Mercado Secundario", "Negociación de acciones ya existentes entre inversionistas.")
+            term("Mercado Secundario", "Negociación entre inversionistas.")
 
-        with st.expander("💰 Términos de Valoración y Retorno"):
-            term("Dividendos", "Distribución de utilidades de la empresa entre sus accionistas.")
-            term("Ganancia de Capital", "Diferencia positiva entre el precio de venta y el de compra.")
-            term("Papeles Comerciales (Renta Fija)", "Deuda a corto plazo con tasa de interés conocida.")
-            term("Rendimiento", "Ganancia o pérdida porcentual obtenida.")
+        with st.expander("💰 Términos de Valoración"):
+            term("Dividendos", "Distribución de utilidades.")
+            term("Ganancia de Capital", "Diferencia entre precio de venta y compra.")
+            term("Papeles Comerciales", "Deuda a corto plazo.")
+            term("Rendimiento", "Ganancia o pérdida porcentual.")
 
-        with st.expander("🛡️ Gestión de Riesgo"):
-            term("Bursatilidad", "Facilidad para comprar o vender una acción sin afectar su precio.")
-            term("Diversificación", "Estrategia de repartir el capital para reducir riesgos.")
-            term("Volatilidad", "Intensidad de los cambios de precio de una acción.")
-            term("Inflación/Cobertura", "Uso de activos para proteger el poder adquisitivo.")
-
-    # --- PÁGINA 3: DIRECTORIO ---
+    # --- PÁGINA 3: DIRECTORIO (ORDENADO Y DORADO) ---
     elif opcion == "🏢 Directorio Casas de Bolsa":
         st.markdown('<p class="main-header">Directorio de Casas de Bolsa 🏢</p>', unsafe_allow_html=True)
+        
+        # Mantenemos el orden original del PDF
         casa_sel = st.selectbox("Buscar Casa de Bolsa:", list(directorio_casas.keys()))
         info = directorio_casas[casa_sel]
-        st.markdown(f'<div class="card"><h3 style="color:#D4AF37;">{casa_sel}</h3><p>{info["desc"]}</p><br><a href="{info["web"]}" target="_blank" class="web-button">🌐 Visitar Página Web</a></div>', unsafe_allow_html=True)
+        
+        st.markdown(f"""
+            <div class="card">
+                <p><span class="term-title">Nombre de Casa de Bolsa:</span> {casa_sel}</p>
+                <p><span class="term-title">Rif:</span> {info['rif']}</p>
+                <p><span class="term-title">Descripción:</span> {info['desc']}</p>
+                <p><span class="term-title">Dirección:</span> {info['dir']}</p>
+                <p><span class="term-title">Contacto:</span> {info['tel']}</p>
+                <p><span class="term-title">Email:</span> {info['mail']}</p>
+                <br>
+                <a href="{info['web']}" target="_blank" class="web-button">🌐 Visitar Página Web Oficial</a>
+            </div>
+        """, unsafe_allow_html=True)
