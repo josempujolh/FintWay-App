@@ -90,7 +90,7 @@ if not st.session_state.logged_in:
         st.markdown(f'<div style="display: flex; justify-content: center; margin-top: 20px;"><img src="data:image/png;base64,{logo_b64}" width="280"></div>', unsafe_allow_html=True)
     
     st.markdown('<p class="main-header">FintWay</p>', unsafe_allow_html=True)
-    st.markdown('<p class="welcome-text">Bienvenido a tu camino financiero más sencillo</p>', unsafe_allow_html=True)
+    st.markdown('<p class="welcome-text">Tu camino financiero más sencillo</p>', unsafe_allow_html=True)
 
     # TARJETAS DE INICIO
     col_ah, col_ap, col_in = st.columns(3)
